@@ -1,4 +1,12 @@
-import { Alert, FlatList, RefreshControl } from "react-native";
+import {
+  Alert,
+  FlatList,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 import React, { useState, useEffect } from "react";
 import { useIsFocused } from "@react-navigation/native";
 
@@ -10,6 +18,7 @@ import {
   fetchTasks,
   updateTaskFinishedStatus,
   handleDelete,
+  fetchTaskIfFinished
 } from "../utils/db";
 
 const TaskList = () => {
@@ -51,7 +60,6 @@ const TaskList = () => {
       ],
       { cancelable: false }
     );
-
   };
 
   const toggleFinished = async (id, status) => {
@@ -75,21 +83,55 @@ const TaskList = () => {
     setRefreshing(false);
   });
 
+  const handleFilter = async (status) => {
+    const data = await fetchTaskIfFinished(status);
+    setTasks(data);
+    console.log(data)
+  }
+
   return (
-    <FlatList
-      style={{ width: "100%" }}
-      data={tasks}
-      keyExtractor={(item) => item.id + ""}
-      renderItem={renderItem}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          colors={["#78e08f"]}
-          onRefresh={onRefresh}
-        />
-      }
-    />
+    <>
+      <ScrollView style={{ position: "absolute", top: 20 }} horizontal>
+        <TouchableOpacity style={styles.filter} onPress={async () => await loadTasks()}>
+          <Text style={styles.textFilter}>Todos</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.filter} onPress={async () => await handleFilter(1)}>
+          <Text style={styles.textFilter}>Terminados</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.filter} onPress={async () => await handleFilter(0)}>
+          <Text style={styles.textFilter}>Pendientes</Text>
+        </TouchableOpacity>
+      </ScrollView>
+      <FlatList
+        style={{ width: "100%", marginTop: 40 }}
+        data={tasks}
+        keyExtractor={(item) => item.id + ""}
+        renderItem={renderItem}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            colors={["#78e08f"]}
+            onRefresh={onRefresh}
+          />
+        }
+      />
+    </>
   );
 };
+
+const styles = StyleSheet.create({
+  filter: {
+    marginHorizontal: 5,
+    paddingVertical: 3,
+    paddingHorizontal: 7,
+    backgroundColor: "#C48507",
+    borderRadius: 5,
+  },
+  textFilter: {
+    color: "#fff",
+  },
+});
 
 export default TaskList;

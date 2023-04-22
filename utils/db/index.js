@@ -60,6 +60,25 @@ const fetchTaskById = (taskId) => {
   });
 };
 
+const fetchTaskIfFinished = (finished) => {
+  return new Promise((resolve, reject) => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        "SELECT * FROM tasks WHERE finished = ?",
+        [finished], // Pasamos el parámetro taskId como un array para prevenir SQL injection
+        (_, result) => {
+          const task = result.rows._array // Obtenemos la primera fila del resultado como un objeto
+          resolve(task); // Resuelve la promesa con la tarea obtenida
+        },
+        (error) => {
+          console.log("Error al obtener la tarea: ", error);
+          reject(error); // Rechaza la promesa en caso de error
+        }
+      );
+    });
+  });
+};
+
 const handleInsert = (title, description) => {
   db.transaction((tx) => {
     tx.executeSql(
@@ -129,5 +148,6 @@ export {
   handleDelete,
   handleUpdate,
   fetchTaskById,
-  updateTaskFinishedStatus
+  updateTaskFinishedStatus,
+  fetchTaskIfFinished
 };
