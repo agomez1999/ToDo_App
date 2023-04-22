@@ -1,6 +1,9 @@
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import React, { useState, useEffect } from "react";
 
+// Calendar
+import { Calendar, LocaleConfig } from "react-native-calendars";
+
 // Components
 import Layout from "../../components/Layout";
 
@@ -16,6 +19,7 @@ const TaskFormScreen = ({ navigation, route }) => {
   });
 
   const [editing, setEditing] = useState(false);
+  const [selected, setSelected] = useState("");
 
   const handleChange = (name, value) => {
     setTask({ ...task, [name]: value });
@@ -42,6 +46,65 @@ const TaskFormScreen = ({ navigation, route }) => {
     }
   }, []);
 
+  // Calendari
+  LocaleConfig.locales["es"] = {
+    monthNames: [
+      "Enero",
+      "Febrero",
+      "Marzo",
+      "Abril",
+      "Mayo",
+      "Junio",
+      "Julio",
+      "Agosto",
+      "Septiembre",
+      "Octubre",
+      "Noviembre",
+      "Diciembre",
+    ],
+    monthNames: [
+      "Enero",
+      "Febrero",
+      "Marzo",
+      "Abril",
+      "Mayo",
+      "Junio",
+      "Julio",
+      "Agosto",
+      "Septiembre",
+      "Octubre",
+      "Noviembre",
+      "Diciembre",
+    ],
+    monthNamesShort: [
+      "En.",
+      "Feb.",
+      "Mar.",
+      "Abr.",
+      "May.",
+      "Jun.",
+      "Jul.",
+      "Ag.",
+      "Sept.",
+      "Oct.",
+      "Nov.",
+      "Dic.",
+    ],
+    dayNames: [
+      "Domingo",
+      "Lunes",
+      "Martes",
+      "Miércoles",
+      "Jueves",
+      "Viernes",
+      "Sábado",
+    ],
+    dayNamesShort: ["Dom.", "Lun.", "Mar.", "Miér.", "Juev.", "Vier.", "Sáb."],
+    today: "Hoy",
+  };
+
+  LocaleConfig.defaultLocale = "es";
+
   return (
     <Layout>
       <Text></Text>
@@ -64,6 +127,23 @@ const TaskFormScreen = ({ navigation, route }) => {
       <TouchableOpacity style={styles.buttonSave} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Guardar</Text>
       </TouchableOpacity>
+      <Calendar
+      style={styles.calendar}
+        onDayPress={(day) => {
+          setSelected(day.dateString);
+        }}
+        markedDates={{
+          [selected]: {
+            selected: true,
+            disableTouchEvent: true,
+            selectedDotColor: "#C48507",
+          },
+        }}
+        theme={{
+          backgroundColor: '#808080',
+          calendarBackground: '#808080'
+        }}
+      />
     </Layout>
   );
 };
@@ -107,6 +187,11 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     textTransform: "uppercase",
   },
+  calendar: {
+    backgroundColor: '#808080',
+    borderRadius: 5,
+    opacity: .9
+  }
 });
 
 export default TaskFormScreen;

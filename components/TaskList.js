@@ -18,18 +18,26 @@ import {
   fetchTasks,
   updateTaskFinishedStatus,
   handleDelete,
-  fetchTaskIfFinished
+  fetchTaskIfFinished,
 } from "../utils/db";
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState(1);
 
   const isFocused = useIsFocused();
 
   const loadTasks = async () => {
     const data = await fetchTasks();
     setTasks(data);
+
+    if (data.length === 0) {
+      setIsEmpty(true);
+    } else {
+      setIsEmpty(false);
+    }
   };
 
   useEffect(() => {
@@ -86,37 +94,66 @@ const TaskList = () => {
   const handleFilter = async (status) => {
     const data = await fetchTaskIfFinished(status);
     setTasks(data);
-    console.log(data)
-  }
+
+    if (data.length === 0) {
+      setIsEmpty(true);
+    } else {
+      setIsEmpty(false);
+    }
+  };
 
   return (
     <>
       <ScrollView style={{ position: "absolute", top: 20 }} horizontal>
-        <TouchableOpacity style={styles.filter} onPress={async () => await loadTasks()}>
+        <TouchableOpacity
+          style={selectedFilter === 1 ? styles.filterSelected : styles.filter}
+          onPress={async () => {
+            await loadTasks();
+            setSelectedFilter(1);
+          }}
+        >
           <Text style={styles.textFilter}>Todos</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.filter} onPress={async () => await handleFilter(1)}>
+        <TouchableOpacity
+          style={selectedFilter === 2 ? styles.filterSelected : styles.filter}
+          onPress={async () => {
+            await handleFilter(1);
+            setSelectedFilter(2);
+          }}
+        >
           <Text style={styles.textFilter}>Terminados</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.filter} onPress={async () => await handleFilter(0)}>
+        <TouchableOpacity
+          style={selectedFilter === 3 ? styles.filterSelected : styles.filter}
+          onPress={async () => {
+            await handleFilter(0);
+            setSelectedFilter(3);
+          }}
+        >
           <Text style={styles.textFilter}>Pendientes</Text>
         </TouchableOpacity>
       </ScrollView>
-      <FlatList
-        style={{ width: "100%", marginTop: 40 }}
-        data={tasks}
-        keyExtractor={(item) => item.id + ""}
-        renderItem={renderItem}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            colors={["#78e08f"]}
-            onRefresh={onRefresh}
-          />
-        }
-      />
+      {isEmpty ? (
+        <Text style={{ marginTop: 100, color: "#fff", fontSize: 20 }}>
+          No hay tareas
+        </Text>
+      ) : (
+        <FlatList
+          style={{ width: "100%", marginTop: 40 }}
+          data={tasks}
+          keyExtractor={(item) => item.id + ""}
+          renderItem={renderItem}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              colors={["#78e08f"]}
+              onRefresh={onRefresh}
+            />
+          }
+        />
+      )}
     </>
   );
 };
@@ -127,6 +164,13 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     paddingHorizontal: 7,
     backgroundColor: "#C48507",
+    borderRadius: 5,
+  },
+  filterSelected: {
+    marginHorizontal: 5,
+    paddingVertical: 3,
+    paddingHorizontal: 7,
+    backgroundColor: "#985E03", // Estilo para filtro seleccionado, más oscuro
     borderRadius: 5,
   },
   textFilter: {
