@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
 } from "react-native";
 import React, { useState, useEffect } from "react";
@@ -28,6 +29,17 @@ const TaskList = () => {
   const [selectedFilter, setSelectedFilter] = useState(1);
 
   const isFocused = useIsFocused();
+  const [search, setSearch] = useState("");
+
+  const handleSearch = (text) => {
+    setSearch(text);
+  };
+
+  const filteredTasks = tasks.filter(
+    (task) =>
+      task.title.toLowerCase().includes(search.toLowerCase()) ||
+      task.description.toLowerCase().includes(search.toLowerCase())
+  );
 
   const loadTasks = async () => {
     const data = await fetchTasks();
@@ -127,6 +139,13 @@ const TaskList = () => {
 
   return (
     <>
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Buscar tarea"
+        onChangeText={handleSearch}
+        value={search}
+        placeholderTextColor={"#fff"}
+      />
       <ScrollView style={{ position: "absolute", top: 20 }} horizontal>
         <TouchableOpacity
           style={selectedFilter === 1 ? styles.filterSelected : styles.filter}
@@ -164,9 +183,9 @@ const TaskList = () => {
         </Text>
       ) : (
         <FlatList
-          style={{ width: "100%", marginTop: 40 }}
-          data={tasks}
-          keyExtractor={(item) => item.id + ""}
+          style={{ width: "100%", marginTop: 8 }}
+          data={filteredTasks}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
           refreshControl={
             <RefreshControl
@@ -198,6 +217,18 @@ const styles = StyleSheet.create({
   },
   textFilter: {
     color: "#fff",
+  },
+  searchBar: {
+    marginTop: 50,
+    borderRadius: 5,
+    width: "100%",
+    borderBottomWidth: 1,
+    borderBottomColor: "#C48507",
+    borderTopWidth: 1,
+    borderTopColor: "#C48507",
+    color: "#fff",
+    paddingVertical: 3,
+    paddingHorizontal: 7,
   },
 });
 
