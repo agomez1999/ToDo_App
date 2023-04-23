@@ -143,6 +143,43 @@ const updateTaskFinishedStatus = (taskId, finished) => {
   });
 };
 
+const getTasksByDateAsc = () => {
+  return new Promise((resolve, reject) => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        "SELECT * FROM tasks ORDER BY date ASC",
+        [],
+        (tx, results) => {
+          const tasks = results.rows._array;
+          console.log(tasks)
+          resolve(tasks);
+        },
+        (tx, error) => {
+          reject(error);
+        }
+      );
+    });
+  });
+};
+
+const getTasksByDateDesc = () => {
+  return new Promise((resolve, reject) => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        "SELECT * FROM tasks ORDER BY date DESC",
+        [],
+        (tx, results) => {
+          const tasks = results.rows._array;
+          resolve(tasks);
+        },
+        (tx, error) => {
+          reject(error);
+        }
+      );
+    });
+  });
+};
+
 export {
   createTable,
   fetchTasks,
@@ -152,4 +189,6 @@ export {
   fetchTaskById,
   updateTaskFinishedStatus,
   fetchTaskIfFinished,
+  getTasksByDateAsc,
+  getTasksByDateDesc,
 };

@@ -20,6 +20,8 @@ import {
   updateTaskFinishedStatus,
   handleDelete,
   fetchTaskIfFinished,
+  getTasksByDateAsc,
+  getTasksByDateDesc,
 } from "../utils/db";
 
 const TaskList = () => {
@@ -137,6 +139,16 @@ const TaskList = () => {
     }
   };
 
+  const handleOrder = async (status) => {
+    if (status === "asc") {
+      const data = await getTasksByDateAsc();
+      setTasks(data);
+    } else {
+      const data = await getTasksByDateDesc();
+      setTasks(data);
+    }
+  };
+
   return (
     <>
       <TextInput
@@ -146,7 +158,11 @@ const TaskList = () => {
         value={search}
         placeholderTextColor={"#fff"}
       />
-      <ScrollView style={{ position: "absolute", top: 20 }} horizontal>
+      <ScrollView
+        style={{ position: "absolute", top: 20 }}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+      >
         <TouchableOpacity
           style={selectedFilter === 1 ? styles.filterSelected : styles.filter}
           onPress={async () => {
@@ -175,6 +191,26 @@ const TaskList = () => {
           }}
         >
           <Text style={styles.textFilter}>Pendientes</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={selectedFilter === 4 ? styles.filterSelected : styles.filter}
+          onPress={async () => {
+            await handleOrder("asc");
+            setSelectedFilter(4);
+          }}
+        >
+          <Text style={styles.textFilter}>Fecha -</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={selectedFilter === 5 ? styles.filterSelected : styles.filter}
+          onPress={async () => {
+            await handleOrder("desc");
+            setSelectedFilter(5);
+          }}
+        >
+          <Text style={styles.textFilter}>Fecha +</Text>
         </TouchableOpacity>
       </ScrollView>
       {isEmpty ? (

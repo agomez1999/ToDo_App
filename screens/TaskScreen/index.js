@@ -31,7 +31,7 @@ const TaskScreen = ({ navigation, route }) => {
   return (
     <Layout>
       <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
           <Text style={styles.taskTitle}>{task.title}</Text>
           <Text style={styles.taskDescription}>{task.description}</Text>
           <TouchableOpacity
