@@ -3,28 +3,34 @@ import React from "react";
 import { useNavigation } from "@react-navigation/native";
 
 // Icons
-import { MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
+import { MaterialCommunityIcons, AntDesign } from "@expo/vector-icons";
 
-const TaskItem = ({ task, handleDelete, toggleFinished }) => {
+const TaskItem = ({ task, handleDelete, toggleFinished, setFormatedDate }) => {
   const navigation = useNavigation();
 
   return (
     <View style={styles.itemContainer}>
       <TouchableOpacity
-        style={{ flexDirection: 'column', justifyContent: 'space-between', height: 50 }}
+        style={{
+          flexDirection: "column",
+          justifyContent: "space-between",
+        }}
         onPress={() => navigation.navigate("TaskScreen", { id: task.id })}
       >
-        <Text style={styles.itemTitle}>
+        <Text style={task.finished ? [styles.itemTitle , styles.finishedStyles] : styles.itemTitle}>
           {" "}
           {task.title.length > 31
             ? task.title.slice(0, 31) + "..."
             : task.title}
         </Text>
-        <Text style={styles.itemDescription}>
+        <Text style={task.finished ? [styles.itemDescription , styles.finishedStyles] : styles.itemDescription}>
           {" "}
           {task.description.length > 31
             ? task.description.slice(0, 31) + "..."
             : task.description}
+        </Text>
+        <Text style={{ color: "#c0c0c0", marginLeft: 5, fontSize: 12 }}>
+          {task.date ? setFormatedDate(task.date + "") : ""}
         </Text>
       </TouchableOpacity>
 
@@ -33,19 +39,54 @@ const TaskItem = ({ task, handleDelete, toggleFinished }) => {
           style={{ backgroundColor: "#ee5253", padding: 7, borderRadius: 5 }}
           onPress={() => handleDelete(task.id)}
         >
-          <Text style={{ color: "#fff" }}>Eliminar</Text>
+          <Text style={{ color: "#fff", textAlign: "center" }}>Eliminar</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={{  backgroundColor: task.finished ? "#10ac84" : "#C48507", padding: 7, borderRadius: 5, height: 32 }}
-          onPress={() => toggleFinished(task.id, !task.finished)}
-        >
-          { task.finished ? 
-            <MaterialCommunityIcons name="check" size={19} color="white" style={{ textAlign: "center" }} />
-            :
-            <MaterialCommunityIcons name="clock" size={19} color="white" style={{ textAlign: "center" }} />
-          }
-        </TouchableOpacity>
+        <View style={{ flexDirection: "row" }}>
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#007AFF",
+              padding: 7,
+              borderRadius: 5,
+              height: 32,
+            }}
+            onPress={() => navigation.navigate("TaskForm", { id: task.id })}
+          >
+            <AntDesign
+              name="edit"
+              size={19}
+              color="white"
+              style={{ textAlign: "center" }}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={{
+              backgroundColor: task.finished ? "#10ac84" : "#C48507",
+              padding: 7,
+              borderRadius: 5,
+              height: 32,
+              marginLeft: 5,
+            }}
+            onPress={() => toggleFinished(task.id, !task.finished)}
+          >
+            {task.finished ? (
+              <MaterialCommunityIcons
+                name="check"
+                size={19}
+                color="white"
+                style={{ textAlign: "center" }}
+              />
+            ) : (
+              <MaterialCommunityIcons
+                name="clock"
+                size={19}
+                color="white"
+                style={{ textAlign: "center" }}
+              />
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -60,7 +101,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    
   },
   itemTitle: {
     color: "#ffffff",
@@ -69,7 +109,12 @@ const styles = StyleSheet.create({
   },
   itemDescription: {
     color: "#ffffff",
+    marginVertical: 10,
   },
+  finishedStyles: {
+    textDecorationLine: "line-through",
+    fontStyle: "italic",
+  }
 });
 
 export default TaskItem;

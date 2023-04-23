@@ -1,13 +1,23 @@
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import React, { useState, useEffect } from "react";
 
 // Calendar
 import { Calendar, LocaleConfig } from "react-native-calendars";
 
+// DateTimePickerModal
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+
+// Checkbox
+import { CheckBox } from "react-native-elements";
+
 // Components
 import Layout from "../../components/Layout";
-
-import { TouchableOpacity } from "react-native";
 
 // Database
 import { handleInsert, handleUpdate, fetchTaskById } from "../../utils/db";
@@ -16,22 +26,42 @@ const TaskFormScreen = ({ navigation, route }) => {
   const [task, setTask] = useState({
     title: "",
     description: "",
+    date: "",
   });
 
   const [editing, setEditing] = useState(false);
-  const [selected, setSelected] = useState("");
+  const [isChecked, setIsChecked] = useState(false);
+  const [date, setDate] = useState("");
+
+  const handleCheck = () => {
+    setIsChecked(!isChecked);
+    if (!isChecked) {
+      setDate("");
+    }
+  };
 
   const handleChange = (name, value) => {
     setTask({ ...task, [name]: value });
   };
 
   const handleSubmit = async () => {
+    console.log(task);
     if (!editing) {
-      await handleInsert(task.title, task.description);
+      await handleInsert(task.title, task.description, task.date);
     } else {
-      await handleUpdate(route.params.id, task.title, task.description);
+      await handleUpdate(route.params.id, task.title, task.description, task.date);
     }
     navigation.navigate("Home");
+  };
+
+  const formateDate = (date) => {
+    const año = date.getFullYear();
+    const mes = String(date.getMonth() + 1).padStart(2, "0");
+    const día = String(date.getDate()).padStart(2, "0");
+
+    // Crea la cadena de texto formateada
+    const fechaFormateada = `${día}-${mes}-${año}`;
+    setDate(fechaFormateada);
   };
 
   useEffect(() => {
@@ -124,26 +154,57 @@ const TaskFormScreen = ({ navigation, route }) => {
         value={task.description}
       />
 
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          width: "100%",
+          justifyContent: "space-between",
+        }}
+      >
+        <CheckBox
+          title={"Informar fecha"}
+          checked={isChecked}
+          onPress={handleCheck}
+          containerStyle={{
+            backgroundColor: "transparent",
+            borderColor: "transparent",
+          }}
+          textStyle={{ color: "#fff", fontWeight: 400 }}
+        />
+        {isChecked ? (
+          <Text
+            style={{
+              color: "#fff",
+              backgroundColor: "#C48507",
+              borderRadius: 5,
+              padding: 3,
+              marginRight: 18,
+            }}
+          >
+            {date}
+          </Text>
+        ) : (
+          ""
+        )}
+      </View>
+
+      <DateTimePickerModal
+        isVisible={isChecked}
+        mode="date"
+        onConfirm={(res) => {
+          formateDate(res);
+          handleChange(
+            "date",
+            res.toISOString().substring(0, 10).replace(/-/g, "")
+          );
+        }}
+        onCancel={() => setIsChecked(!isChecked)}
+      />
+
       <TouchableOpacity style={styles.buttonSave} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Guardar</Text>
       </TouchableOpacity>
-      <Calendar
-      style={styles.calendar}
-        onDayPress={(day) => {
-          setSelected(day.dateString);
-        }}
-        markedDates={{
-          [selected]: {
-            selected: true,
-            disableTouchEvent: true,
-            selectedDotColor: "#C48507",
-          },
-        }}
-        theme={{
-          backgroundColor: '#808080',
-          calendarBackground: '#808080'
-        }}
-      />
     </Layout>
   );
 };
@@ -168,7 +229,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#C48507",
     height: "auto",
-    maxHeight: 550,
+    maxHeight: 520,
     color: "#ffffff",
     padding: 4,
     textAlign: "justify",
@@ -188,10 +249,10 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   calendar: {
-    backgroundColor: '#808080',
+    backgroundColor: "#808080",
     borderRadius: 5,
-    opacity: .9
-  }
+    opacity: 0.9,
+  },
 });
 
 export default TaskFormScreen;

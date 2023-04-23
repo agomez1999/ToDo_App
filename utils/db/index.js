@@ -1,6 +1,6 @@
 import * as SQLite from "expo-sqlite";
 
-const db = SQLite.openDatabase("tasks.db1");
+const db = SQLite.openDatabase("tasks.db2");
 
 const createTable = () => {
   db.transaction((tx) => {
@@ -9,8 +9,10 @@ const createTable = () => {
         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
         "title" TEXT NOT NULL,
         "description" TEXT DEFAULT NULL,
-        "finished" BOOLEAN DEFAULT 0
-      );`,
+        "finished" BOOLEAN DEFAULT 0,
+        "date" DATE DEFAULT NULL
+      );
+      `,
       [],
       () => {
         console.log("Tabla creada exitosamente");
@@ -67,7 +69,7 @@ const fetchTaskIfFinished = (finished) => {
         "SELECT * FROM tasks WHERE finished = ?",
         [finished], // Pasamos el parámetro taskId como un array para prevenir SQL injection
         (_, result) => {
-          const task = result.rows._array // Obtenemos la primera fila del resultado como un objeto
+          const task = result.rows._array; // Obtenemos la primera fila del resultado como un objeto
           resolve(task); // Resuelve la promesa con la tarea obtenida
         },
         (error) => {
@@ -79,11 +81,11 @@ const fetchTaskIfFinished = (finished) => {
   });
 };
 
-const handleInsert = (title, description) => {
+const handleInsert = (title, description, date) => {
   db.transaction((tx) => {
     tx.executeSql(
-      "INSERT INTO tasks (title, description) VALUES (?, ?)",
-      [title, description],
+      "INSERT INTO tasks (title, description, date) VALUES (?, ?, ?)",
+      [title, description, date],
       () => {
         console.log("Inserción de datos exitosa");
       },
@@ -111,11 +113,11 @@ const handleDelete = (taskId) => {
   });
 };
 
-const handleUpdate = (taskId, title, description) => {
+const handleUpdate = (taskId, title, description, date) => {
   db.transaction((tx) => {
     tx.executeSql(
-      "UPDATE tasks SET title = ?, description = ? WHERE id = ?",
-      [title, description, taskId],
+      "UPDATE tasks SET title = ?, description = ?, date = ? WHERE id = ?",
+      [title, description, date, taskId],
       () => {
         console.log("Actualización de datos exitosa");
       },
@@ -149,5 +151,5 @@ export {
   handleUpdate,
   fetchTaskById,
   updateTaskFinishedStatus,
-  fetchTaskIfFinished
+  fetchTaskIfFinished,
 };

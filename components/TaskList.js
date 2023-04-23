@@ -40,6 +40,28 @@ const TaskList = () => {
     }
   };
 
+  const setFormatedDate = (date) => {
+    if (typeof date !== "string") {
+      // Verifica si date no es una cadena de texto
+      console.error("La fecha no es una cadena de texto");
+      return "";
+    }
+
+    if (date.length !== 8) {
+      // Verifica si date no tiene una longitud de 8 caracteres
+      console.error("La fecha no tiene el formato correcto (yyyymmdd)");
+      return "";
+    }
+
+    const año = date.slice(0, 4);
+    const mes = date.slice(4, 6);
+    const día = date.slice(6, 8);
+
+    // Crea la cadena de texto formateada
+    const fechaFormateada = `${día}-${mes}-${año}`;
+    return fechaFormateada;
+  };
+
   useEffect(() => {
     if (isFocused) {
       loadTasks();
@@ -81,6 +103,7 @@ const TaskList = () => {
         task={item}
         handleDelete={handleDeleteTask}
         toggleFinished={toggleFinished}
+        setFormatedDate={setFormatedDate}
       />
     );
   };
