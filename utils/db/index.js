@@ -28,7 +28,7 @@ const fetchTasks = () => {
   return new Promise((resolve, reject) => {
     db.transaction((tx) => {
       tx.executeSql(
-        "SELECT * FROM tasks",
+        "SELECT * FROM tasks ORDER BY finished",
         [],
         (_, result) => {
           const tasks = result.rows._array;
@@ -147,11 +147,11 @@ const getTasksByDateAsc = () => {
   return new Promise((resolve, reject) => {
     db.transaction((tx) => {
       tx.executeSql(
-        "SELECT * FROM tasks ORDER BY date ASC",
+        "SELECT * FROM tasks WHERE date IS NOT NULL ORDER BY date ASC",
         [],
         (tx, results) => {
           const tasks = results.rows._array;
-          console.log(tasks)
+          console.log(tasks);
           resolve(tasks);
         },
         (tx, error) => {
@@ -166,7 +166,7 @@ const getTasksByDateDesc = () => {
   return new Promise((resolve, reject) => {
     db.transaction((tx) => {
       tx.executeSql(
-        "SELECT * FROM tasks ORDER BY date DESC",
+        "SELECT * FROM tasks WHERE date IS NOT NULL ORDER BY date DESC",
         [],
         (tx, results) => {
           const tasks = results.rows._array;

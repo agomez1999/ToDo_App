@@ -24,6 +24,9 @@ import {
   getTasksByDateDesc,
 } from "../utils/db";
 
+// Icons
+import { AntDesign, Entypo } from "@expo/vector-icons";
+
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -149,11 +152,25 @@ const TaskList = () => {
     }
   };
 
+  const clearSearchBar = () => {
+    setSearch("")
+  }
+
   return (
     <>
+      {search != "" ? (
+        <TouchableOpacity
+          onPress={() => clearSearchBar()}
+          style={{ position: "absolute", right: 10, top: 65, zIndex: 10 }}
+        >
+          <Entypo name="cross" size={24} color="white" />
+        </TouchableOpacity>
+      ) : (
+        ""
+      )}
       <TextInput
         style={styles.searchBar}
-        placeholder="Buscar tarea"
+        placeholder="Buscar tarea 🔎"
         onChangeText={handleSearch}
         value={search}
         placeholderTextColor={"#fff"}
@@ -200,7 +217,9 @@ const TaskList = () => {
             setSelectedFilter(4);
           }}
         >
-          <Text style={styles.textFilter}>Fecha -</Text>
+          <Text style={styles.textFilter}>
+            Fecha <AntDesign name="arrowdown" size={12} color="white" />
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -210,7 +229,9 @@ const TaskList = () => {
             setSelectedFilter(5);
           }}
         >
-          <Text style={styles.textFilter}>Fecha +</Text>
+          <Text style={styles.textFilter}>
+            Fecha <AntDesign name="arrowup" size={12} color="white" />
+          </Text>
         </TouchableOpacity>
       </ScrollView>
       {isEmpty ? (
@@ -243,6 +264,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 7,
     backgroundColor: "#C48507",
     borderRadius: 5,
+    alignItems: "center",
   },
   filterSelected: {
     marginHorizontal: 5,
@@ -250,6 +272,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 7,
     backgroundColor: "#985E03", // Estilo para filtro seleccionado, más oscuro
     borderRadius: 5,
+    alignItems: "center",
   },
   textFilter: {
     color: "#fff",
@@ -265,6 +288,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     paddingVertical: 3,
     paddingHorizontal: 7,
+    paddingRight: 25,
   },
 });
 
