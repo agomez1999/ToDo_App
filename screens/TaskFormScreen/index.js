@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState, useEffect } from "react";
+import { Picker } from "@react-native-picker/picker";
 
 // DateTimePickerModal
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -17,7 +18,12 @@ import { CheckBox } from "react-native-elements";
 import Layout from "../../components/Layout";
 
 // Database
-import { handleInsert, handleUpdate, fetchTaskById } from "../../utils/db";
+import {
+  handleInsert,
+  handleUpdate,
+  fetchTaskById,
+  fetchCategories,
+} from "../../utils/db";
 
 const TaskFormScreen = ({ navigation, route }) => {
   const [task, setTask] = useState({
@@ -29,6 +35,8 @@ const TaskFormScreen = ({ navigation, route }) => {
   const [editing, setEditing] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [date, setDate] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const handleCheck = () => {
     setIsChecked(!isChecked);
@@ -46,7 +54,12 @@ const TaskFormScreen = ({ navigation, route }) => {
     if (!editing) {
       await handleInsert(task.title, task.description, task.date);
     } else {
-      await handleUpdate(route.params.id, task.title, task.description, task.date);
+      await handleUpdate(
+        route.params.id,
+        task.title,
+        task.description,
+        task.date
+      );
     }
     navigation.navigate("Home");
   };
@@ -62,18 +75,21 @@ const TaskFormScreen = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    if (route.params && route.params.id) {
-      navigation.setOptions({ headerTitle: "Actualizar tarea" });
-      setEditing(true);
+    async function fetchData() {
+      if (route.params && route.params.id) {
+        navigation.setOptions({ headerTitle: "Actualizar tarea" });
+        setEditing(true);
 
-      (async () => {
         const task = await fetchTaskById(route.params.id);
         setTask({ title: task.title, description: task.description });
-      })();
+      }
+
+      const categories = await fetchCategories();
+      setCategories(categories);
     }
+
+    fetchData();
   }, []);
-
-
 
   return (
     <Layout>
@@ -93,6 +109,27 @@ const TaskFormScreen = ({ navigation, route }) => {
         onChangeText={(text) => handleChange("description", text)}
         value={task.description}
       />
+
+      <View style={styles.pickerContainer}>
+        <Picker
+          style={styles.picker}
+          mode="dropdown"
+          selectedValue={selectedCategory}
+          onValueChange={(itemValue, itemIndex) =>
+            setSelectedCategory(itemValue)
+          }
+        >
+          <Picker.Item label="Seleccione una categoría" value={null} style={styles.pickerItem} />
+          {categories.map((category) => (
+            <Picker.Item
+              style={styles.pickerItem}
+              label={category.name}
+              value={category.id}
+              key={category.id}
+            />
+          ))}
+        </Picker>
+      </View>
 
       <View
         style={{
@@ -193,6 +230,23 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     opacity: 0.9,
   },
+  pickerContainer: {
+    display: 'flex',
+    alignItems: "center",
+    width: "90%",
+    borderWidth: 1,
+    borderColor: "orange",
+    color: "white",
+    borderRadius: 5,
+  },
+  picker: {
+    width: '100%',
+    color: "white",
+    height: 40
+  },
+  pickerItem: {
+    fontSize: 14,
+  }
 });
 
 export default TaskFormScreen;
