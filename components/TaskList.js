@@ -153,8 +153,8 @@ const TaskList = () => {
   };
 
   const clearSearchBar = () => {
-    setSearch("")
-  }
+    setSearch("");
+  };
 
   return (
     <>

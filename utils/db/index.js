@@ -4,6 +4,7 @@ const db = SQLite.openDatabase("tasks.db2");
 
 const createTable = () => {
   db.transaction((tx) => {
+    // Crear la tabla "tasks"
     tx.executeSql(
       `CREATE TABLE IF NOT EXISTS "tasks" (
         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -11,14 +12,44 @@ const createTable = () => {
         "description" TEXT DEFAULT NULL,
         "finished" BOOLEAN DEFAULT 0,
         "date" DATE DEFAULT NULL
-      );
-      `,
+      );`,
       [],
       () => {
-        console.log("Tabla creada exitosamente");
+        console.log("Tabla 'tasks' creada exitosamente");
       },
       (error) => {
-        console.log("Error al crear la tabla: ", error);
+        console.log("Error al crear la tabla 'tasks': ", error);
+      }
+    );
+
+    // Crear la tabla "categories"
+    tx.executeSql(
+      `CREATE TABLE IF NOT EXISTS "categories" (
+        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+        "name" VARCHAR(64)
+      );`,
+      [],
+      () => {
+        console.log("Tabla 'categories' creada exitosamente");
+      },
+      (error) => {
+        console.log("Error al crear la tabla 'categories': ", error);
+      }
+    );
+
+    // Crear la tabla "task_category"
+    tx.executeSql(
+      `CREATE TABLE IF NOT EXISTS "task_category" (
+        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+        "task_id" INTEGER,
+        "category_id" INTEGER
+      );`,
+      [],
+      () => {
+        console.log("Tabla 'task_category' creada exitosamente");
+      },
+      (error) => {
+        console.log("Error al crear la tabla 'task_category': ", error);
       }
     );
   });
@@ -180,6 +211,57 @@ const getTasksByDateDesc = () => {
   });
 };
 
+const fetchCategories = () => {
+  return new Promise((resolve, reject) => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        "SELECT * FROM categories",
+        [],
+        (_, result) => {
+          const category = result.rows._array;
+          resolve(category); // Resuelve la promesa con los datos obtenidos
+        },
+        (error) => {
+          console.log("Error al obtener las tareas: ", error);
+          reject(error); // Rechaza la promesa en caso de error
+        }
+      );
+    });
+  });
+};
+
+const insertCategory = (name) => {
+  db.transaction((tx) => {
+    tx.executeSql(
+      "INSERT INTO categories (name) VALUES (?)",
+      [name],
+      () => {
+        console.log("Inserción de datos exitosa");
+      },
+      (error) => {
+        console.log("Error al insertar datos: ", error);
+      }
+    );
+  });
+};
+
+const showTables = () => {
+  db.transaction((tx) => {
+    tx.executeSql(
+      "SELECT name FROM sqlite_master WHERE type='table';",
+      [],
+      (tx, result) => {
+        for (let i = 0; i < result.rows.length; i++) {
+          console.log("Tabla: " + result.rows.item(i).name);
+        }
+      },
+      (error) => {
+        console.log("Error al listar las tablas: ", error);
+      }
+    );
+  });
+};
+
 export {
   createTable,
   fetchTasks,
@@ -191,4 +273,8 @@ export {
   fetchTaskIfFinished,
   getTasksByDateAsc,
   getTasksByDateDesc,
+  // Categories
+  fetchCategories,
+  insertCategory,
+  showTables,
 };

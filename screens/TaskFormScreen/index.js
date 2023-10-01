@@ -7,9 +7,6 @@ import {
 } from "react-native";
 import React, { useState, useEffect } from "react";
 
-// Calendar
-import { Calendar, LocaleConfig } from "react-native-calendars";
-
 // DateTimePickerModal
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
@@ -76,64 +73,7 @@ const TaskFormScreen = ({ navigation, route }) => {
     }
   }, []);
 
-  // Calendari
-  LocaleConfig.locales["es"] = {
-    monthNames: [
-      "Enero",
-      "Febrero",
-      "Marzo",
-      "Abril",
-      "Mayo",
-      "Junio",
-      "Julio",
-      "Agosto",
-      "Septiembre",
-      "Octubre",
-      "Noviembre",
-      "Diciembre",
-    ],
-    monthNames: [
-      "Enero",
-      "Febrero",
-      "Marzo",
-      "Abril",
-      "Mayo",
-      "Junio",
-      "Julio",
-      "Agosto",
-      "Septiembre",
-      "Octubre",
-      "Noviembre",
-      "Diciembre",
-    ],
-    monthNamesShort: [
-      "En.",
-      "Feb.",
-      "Mar.",
-      "Abr.",
-      "May.",
-      "Jun.",
-      "Jul.",
-      "Ag.",
-      "Sept.",
-      "Oct.",
-      "Nov.",
-      "Dic.",
-    ],
-    dayNames: [
-      "Domingo",
-      "Lunes",
-      "Martes",
-      "Miércoles",
-      "Jueves",
-      "Viernes",
-      "Sábado",
-    ],
-    dayNamesShort: ["Dom.", "Lun.", "Mar.", "Miér.", "Juev.", "Vier.", "Sáb."],
-    today: "Hoy",
-  };
 
-  LocaleConfig.defaultLocale = "es";
 
   return (
     <Layout>
