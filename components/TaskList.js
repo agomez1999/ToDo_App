@@ -31,7 +31,13 @@ const TaskList = () => {
   const [tasks, setTasks] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState(1);
+  const [selectedFilter, setSelectedFilter] = useState({
+    All: true,
+    Finished: false,
+    Pendent: false,
+    DateDown: false,
+    DateUp: false,
+  });
 
   const isFocused = useIsFocused();
   const [search, setSearch] = useState("");
@@ -181,40 +187,42 @@ const TaskList = () => {
         showsHorizontalScrollIndicator={false}
       >
         <TouchableOpacity
-          style={selectedFilter === 1 ? styles.filterSelected : styles.filter}
+          style={selectedFilter.All ? styles.filterSelected : styles.filter}
           onPress={async () => {
             await loadTasks();
-            setSelectedFilter(1);
+            setSelectedFilter({ All: true });
           }}
         >
           <Text style={styles.textFilter}>Todos</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={selectedFilter === 2 ? styles.filterSelected : styles.filter}
+          style={
+            selectedFilter.Finished ? styles.filterSelected : styles.filter
+          }
           onPress={async () => {
             await handleFilter(1);
-            setSelectedFilter(2);
+            setSelectedFilter({ Finished: true });
           }}
         >
           <Text style={styles.textFilter}>Terminados</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={selectedFilter === 3 ? styles.filterSelected : styles.filter}
+          style={selectedFilter.Pendent ? styles.filterSelected : styles.filter}
           onPress={async () => {
             await handleFilter(0);
-            setSelectedFilter(3);
+            setSelectedFilter({ Pendent: true });
           }}
         >
           <Text style={styles.textFilter}>Pendientes</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={selectedFilter === 4 ? styles.filterSelected : styles.filter}
+          style={selectedFilter.DateDown ? styles.filterSelected : styles.filter}
           onPress={async () => {
             await handleOrder("asc");
-            setSelectedFilter(4);
+            setSelectedFilter({ DateDown: true });
           }}
         >
           <Text style={styles.textFilter}>
@@ -223,10 +231,10 @@ const TaskList = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={selectedFilter === 5 ? styles.filterSelected : styles.filter}
+          style={selectedFilter.DateUp ? styles.filterSelected : styles.filter}
           onPress={async () => {
             await handleOrder("desc");
-            setSelectedFilter(5);
+            setSelectedFilter({ DateUp: true });
           }}
         >
           <Text style={styles.textFilter}>
