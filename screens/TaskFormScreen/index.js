@@ -23,6 +23,9 @@ import {
   handleUpdate,
   fetchTaskById,
   fetchCategories,
+  insertTaskCategory,
+  fetchTaskCategory,
+  updatetTaskCategory,
 } from "../../utils/db";
 
 const TaskFormScreen = ({ navigation, route }) => {
@@ -50,7 +53,6 @@ const TaskFormScreen = ({ navigation, route }) => {
   };
 
   const handleSubmit = async () => {
-    console.log(task);
     if (!editing) {
       await handleInsert(task.title, task.description, task.date);
     } else {
@@ -60,7 +62,17 @@ const TaskFormScreen = ({ navigation, route }) => {
         task.description,
         task.date
       );
+
+      const hasCategory = await fetchTaskCategory(route.params.id);
+
+      if (hasCategory.length === 0) {
+        await insertTaskCategory(route.params.id, selectedCategory);
+      } else {
+        await updatetTaskCategory(route.params.id, selectedCategory);
+      }
+      // Vinculamos la categoria y la tarea
     }
+
     navigation.navigate("Home");
   };
 
@@ -119,7 +131,11 @@ const TaskFormScreen = ({ navigation, route }) => {
             setSelectedCategory(itemValue)
           }
         >
-          <Picker.Item label="Seleccione una categoría" value={null} style={styles.pickerItem} />
+          <Picker.Item
+            label="Seleccione una categoría"
+            value={null}
+            style={styles.pickerItem}
+          />
           {categories.map((category) => (
             <Picker.Item
               style={styles.pickerItem}
@@ -206,7 +222,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#C48507",
     height: "auto",
-    maxHeight: 520,
+    maxHeight: 460,
     color: "#ffffff",
     padding: 4,
     textAlign: "justify",
@@ -231,22 +247,21 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   pickerContainer: {
-    display: 'flex',
+    display: "flex",
     alignItems: "center",
     width: "90%",
-    borderWidth: 1,
-    borderColor: "orange",
+    borderBottomWidth: 1,
+    borderBottomColor: "orange",
     color: "white",
     borderRadius: 5,
   },
   picker: {
-    width: '100%',
+    width: "100%",
     color: "white",
-    height: 40
   },
   pickerItem: {
     fontSize: 14,
-  }
+  },
 });
 
 export default TaskFormScreen;

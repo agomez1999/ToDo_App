@@ -59,7 +59,10 @@ const fetchTasks = () => {
   return new Promise((resolve, reject) => {
     db.transaction((tx) => {
       tx.executeSql(
-        "SELECT * FROM tasks ORDER BY finished",
+        `SELECT A.*, C.name category FROM tasks A 
+        LEFT JOIN task_category B ON A.id = B.task_id 
+        LEFT JOIN categories C ON C.id = B.category_id
+        ORDER BY finished`,
         [],
         (_, result) => {
           const tasks = result.rows._array;
@@ -245,20 +248,55 @@ const insertCategory = (name) => {
   });
 };
 
-const showTables = () => {
+const insertTaskCategory = (task_id, category_id) => {
   db.transaction((tx) => {
     tx.executeSql(
-      "SELECT name FROM sqlite_master WHERE type='table';",
-      [],
-      (tx, result) => {
-        for (let i = 0; i < result.rows.length; i++) {
-          console.log("Tabla: " + result.rows.item(i).name);
-        }
+      "INSERT INTO task_category (task_id, category_id) VALUES (?, ?)",
+      [task_id, category_id],
+      () => {
+        console.log("Inserción de datos exitosa");
       },
       (error) => {
-        console.log("Error al listar las tablas: ", error);
+        console.log("Error al insertar datos: ", error);
       }
     );
+  });
+};
+
+const updatetTaskCategory = (task_id, category_id) => {
+  db.transaction((tx) => {
+    tx.executeSql(
+      "UPDATE task_category SET category_id = ? WHERE task_id = ?",
+      [category_id, task_id],
+      () => {
+        console.log("Actualización de datos exitosa");
+      },
+      (error) => {
+        console.log("Error al actualizar datos: ", error);
+      }
+    );
+  });
+};
+
+const fetchTaskCategory = (task_id) => {
+  return new Promise((resolve, reject) => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        "SELECT * FROM task_category WHERE task_id = ?",
+        [task_id],
+        (_, result) => {
+          const task_category = result.rows._array;
+          resolve(task_category); // Resuelve la promesa con los datos obtenidos
+        },
+        (error) => {
+          console.log(
+            "Error al obtener la relacion de tarea y categoria: ",
+            error
+          );
+          reject(error); // Rechaza la promesa en caso de error
+        }
+      );
+    });
   });
 };
 
@@ -273,8 +311,9 @@ export {
   fetchTaskIfFinished,
   getTasksByDateAsc,
   getTasksByDateDesc,
-  // Categories
   fetchCategories,
   insertCategory,
-  showTables,
+  insertTaskCategory,
+  fetchTaskCategory,
+  updatetTaskCategory,
 };
