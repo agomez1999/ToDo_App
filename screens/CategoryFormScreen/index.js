@@ -28,6 +28,8 @@ const CategoryFormScreen = ({ navigation, route }) => {
   const handleSubmit = async () => {
     console.log(category);
     await insertCategory(category.name, category.color);
+
+    navigation.navigate("CategoryScreen");
   };
 
   const handleColorPickerToggle = () => {

@@ -11,6 +11,7 @@ import TaskFormScreen from "./screens/TaskFormScreen";
 import TaskScreen from "./screens/TaskScreen";
 import CalendarScreen from "./screens/CalendarScreen";
 import CategoryFormScreen from "./screens/CategoryFormScreen";
+import CategoryScreen from "./screens/CategoryScreen";
 
 // Database
 import { createTable } from "./utils/db";
@@ -44,10 +45,10 @@ const App = () => {
                   <AntDesign name="calendar" size={30} color="white" />
                 </TouchableOpacity>
 
-                {/* Check categories list */}
+                {/* Categories list */}
                 <TouchableOpacity
                   style={{ marginLeft: 5 }}
-                  onPress={() => navigation.navigate("CategoryFormScreen")}
+                  onPress={() => navigation.navigate("CategoryScreen")}
                 >
                   <AntDesign name="tags" size={30} color="white" />
                 </TouchableOpacity>
@@ -75,10 +76,9 @@ const App = () => {
               <View style={{ flexDirection: "row" }}>
                 <TouchableOpacity
                   style={{ marginLeft: 5 }}
-                  onPress={() => navigation.navigate("CategoryFormScreen")}
+                  onPress={() => navigation.navigate("CategoryScreen")}
                 >
-                  <MaterialIcons name="add-box" size={30} color="white" />
-                  {/* <Text style={{ color: "#ffffff", fontSize: 15 }}>Añadir</Text> */}
+                  <AntDesign name="tags" size={30} color="white" />
                 </TouchableOpacity>
               </View>
             ),
@@ -103,6 +103,27 @@ const App = () => {
             headerTitleStyle: { color: "#ffffff" },
             headerTintColor: "#ffffff",
           }}
+        />
+
+        <Stack.Screen
+          name="CategoryScreen"
+          component={CategoryScreen}
+          options={({ navigation }) => ({
+            title: "Categorias",
+            headerStyle: { backgroundColor: "#C48507" },
+            headerTitleStyle: { color: "#ffffff" },
+            headerTintColor: "#ffffff",
+            headerRight: () => (
+              <View style={{ flexDirection: "row" }}>
+                <TouchableOpacity
+                  style={{ marginLeft: 5 }}
+                  onPress={() => navigation.navigate("CategoryFormScreen")}
+                >
+                  <MaterialIcons name="add-box" size={30} color="white" />
+                </TouchableOpacity>
+              </View>
+            ),
+          })}
         />
         <Stack.Screen
           name="CategoryFormScreen"

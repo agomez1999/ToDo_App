@@ -49,7 +49,7 @@ const fetchTasks = () => {
         [],
         (_, result) => {
           const tasks = result.rows._array;
-          console.log(tasks)
+          console.log(tasks);
           resolve(tasks); // Resuelve la promesa con los datos obtenidos
         },
         (error) => {
@@ -115,8 +115,6 @@ const handleInsert = (title, description, date, categoryId) => {
 };
 
 const handleDelete = (taskId) => {
-  //   const taskId = 1; // ID de la tarea que se desea eliminar
-
   db.transaction((tx) => {
     tx.executeSql(
       "DELETE FROM tasks WHERE id = ?",
@@ -232,6 +230,21 @@ const insertCategory = (name, color) => {
   });
 };
 
+const deleteCategory = (categoryId) => {
+  db.transaction((tx) => {
+    tx.executeSql(
+      "DELETE FROM categories WHERE id = ?",
+      [categoryId],
+      () => {
+        console.log("Eliminación de datos exitosa");
+      },
+      (error) => {
+        console.log("Error al eliminar datos: ", error);
+      }
+    );
+  });
+};
+
 export {
   createTable,
   fetchTasks,
@@ -245,4 +258,5 @@ export {
   getTasksByDateDesc,
   fetchCategories,
   insertCategory,
+  deleteCategory,
 };
