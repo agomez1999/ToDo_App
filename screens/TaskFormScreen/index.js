@@ -23,8 +23,6 @@ import {
   handleUpdate,
   fetchTaskById,
   fetchCategories,
-  insertTaskCategory,
-  fetchTaskCategory,
   updatetTaskCategory,
 } from "../../utils/db";
 
@@ -33,13 +31,13 @@ const TaskFormScreen = ({ navigation, route }) => {
     title: "",
     description: "",
     date: "",
+    category: "",
   });
 
   const [editing, setEditing] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [date, setDate] = useState("");
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
 
   const handleCheck = () => {
     setIsChecked(!isChecked);
@@ -48,28 +46,27 @@ const TaskFormScreen = ({ navigation, route }) => {
     }
   };
 
-  const handleChange = (name, value) => {
-    setTask({ ...task, [name]: value });
+  const handleChange = (field, value) => {
+    setTask({ ...task, [field]: value });
   };
 
   const handleSubmit = async () => {
     if (!editing) {
-      await handleInsert(task.title, task.description, task.date);
+      await handleInsert(
+        task.title,
+        task.description,
+        task.date,
+        task.category
+      );
     } else {
       await handleUpdate(
         route.params.id,
         task.title,
         task.description,
-        task.date
+        task.date,
+        task.category
       );
 
-      const hasCategory = await fetchTaskCategory(route.params.id);
-
-      if (hasCategory.length === 0) {
-        await insertTaskCategory(route.params.id, selectedCategory);
-      } else {
-        await updatetTaskCategory(route.params.id, selectedCategory);
-      }
       // Vinculamos la categoria y la tarea
     }
 
@@ -93,7 +90,7 @@ const TaskFormScreen = ({ navigation, route }) => {
         setEditing(true);
 
         const task = await fetchTaskById(route.params.id);
-        setTask({ title: task.title, description: task.description });
+        setTask({ title: task.title, description: task.description, category: task.id_category });
       }
 
       const categories = await fetchCategories();
@@ -126,9 +123,9 @@ const TaskFormScreen = ({ navigation, route }) => {
         <Picker
           style={styles.picker}
           mode="dropdown"
-          selectedValue={selectedCategory}
+          selectedValue={task.category}
           onValueChange={(itemValue, itemIndex) =>
-            setSelectedCategory(itemValue)
+            handleChange('category', itemValue)
           }
         >
           <Picker.Item

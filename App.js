@@ -10,6 +10,7 @@ import HomeScreen from "./screens/HomeScreen";
 import TaskFormScreen from "./screens/TaskFormScreen";
 import TaskScreen from "./screens/TaskScreen";
 import CalendarScreen from "./screens/CalendarScreen";
+import CategoryFormScreen from "./screens/CategoryFormScreen";
 
 // Database
 import { createTable } from "./utils/db";
@@ -42,12 +43,21 @@ const App = () => {
                 >
                   <AntDesign name="calendar" size={30} color="white" />
                 </TouchableOpacity>
+
+                {/* Check categories list */}
+                <TouchableOpacity
+                  style={{ marginLeft: 5 }}
+                  onPress={() => navigation.navigate("CategoryFormScreen")}
+                >
+                  <AntDesign name="tags" size={30} color="white" />
+                </TouchableOpacity>
+
+                {/* Create new task */}
                 <TouchableOpacity
                   style={{ marginLeft: 5 }}
                   onPress={() => navigation.navigate("TaskForm")}
                 >
                   <MaterialIcons name="add-box" size={30} color="white" />
-                  {/* <Text style={{ color: "#ffffff", fontSize: 15 }}>Añadir</Text> */}
                 </TouchableOpacity>
               </View>
             ),
@@ -56,12 +66,23 @@ const App = () => {
         <Stack.Screen
           name="TaskForm"
           component={TaskFormScreen}
-          options={{
+          options={({ navigation }) => ({
             title: "Crear tarea",
             headerStyle: { backgroundColor: "#C48507" },
             headerTitleStyle: { color: "#ffffff" },
             headerTintColor: "#ffffff",
-          }}
+            headerRight: () => (
+              <View style={{ flexDirection: "row" }}>
+                <TouchableOpacity
+                  style={{ marginLeft: 5 }}
+                  onPress={() => navigation.navigate("CategoryFormScreen")}
+                >
+                  <MaterialIcons name="add-box" size={30} color="white" />
+                  {/* <Text style={{ color: "#ffffff", fontSize: 15 }}>Añadir</Text> */}
+                </TouchableOpacity>
+              </View>
+            ),
+          })}
         />
         <Stack.Screen
           name="TaskScreen"
@@ -78,6 +99,16 @@ const App = () => {
           component={CalendarScreen}
           options={{
             title: "Calendario",
+            headerStyle: { backgroundColor: "#C48507" },
+            headerTitleStyle: { color: "#ffffff" },
+            headerTintColor: "#ffffff",
+          }}
+        />
+        <Stack.Screen
+          name="CategoryFormScreen"
+          component={CategoryFormScreen}
+          options={{
+            title: "Crear categoria",
             headerStyle: { backgroundColor: "#C48507" },
             headerTitleStyle: { color: "#ffffff" },
             headerTintColor: "#ffffff",

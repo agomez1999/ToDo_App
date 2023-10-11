@@ -1,6 +1,6 @@
 import * as SQLite from "expo-sqlite";
 
-const db = SQLite.openDatabase("tasks.db2");
+const db = SQLite.openDatabase("tasks.db4");
 
 const createTable = () => {
   db.transaction((tx) => {
@@ -11,7 +11,8 @@ const createTable = () => {
         "title" TEXT NOT NULL,
         "description" TEXT DEFAULT NULL,
         "finished" BOOLEAN DEFAULT 0,
-        "date" DATE DEFAULT NULL
+        "date" DATE DEFAULT NULL,
+        "id_category" INTEGER DEFAULT NULL
       );`,
       [],
       () => {
@@ -26,7 +27,8 @@ const createTable = () => {
     tx.executeSql(
       `CREATE TABLE IF NOT EXISTS "categories" (
         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-        "name" VARCHAR(64)
+        "name" VARCHAR(64),
+        "color" VARCHAR(64)
       );`,
       [],
       () => {
@@ -36,22 +38,6 @@ const createTable = () => {
         console.log("Error al crear la tabla 'categories': ", error);
       }
     );
-
-    // Crear la tabla "task_category"
-    tx.executeSql(
-      `CREATE TABLE IF NOT EXISTS "task_category" (
-        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-        "task_id" INTEGER,
-        "category_id" INTEGER
-      );`,
-      [],
-      () => {
-        console.log("Tabla 'task_category' creada exitosamente");
-      },
-      (error) => {
-        console.log("Error al crear la tabla 'task_category': ", error);
-      }
-    );
   });
 };
 
@@ -59,13 +45,11 @@ const fetchTasks = () => {
   return new Promise((resolve, reject) => {
     db.transaction((tx) => {
       tx.executeSql(
-        `SELECT A.*, C.name category FROM tasks A 
-        LEFT JOIN task_category B ON A.id = B.task_id 
-        LEFT JOIN categories C ON C.id = B.category_id
-        ORDER BY finished`,
+        `SELECT A.*, B.name categoryName, B.color FROM tasks A LEFT JOIN categories B ON A.id_category = B.id`,
         [],
         (_, result) => {
           const tasks = result.rows._array;
+          console.log(tasks)
           resolve(tasks); // Resuelve la promesa con los datos obtenidos
         },
         (error) => {
@@ -100,7 +84,7 @@ const fetchTaskIfFinished = (finished) => {
   return new Promise((resolve, reject) => {
     db.transaction((tx) => {
       tx.executeSql(
-        "SELECT * FROM tasks WHERE finished = ?",
+        "SELECT A.*, B.name categoryName, B.color FROM tasks A LEFT JOIN categories B ON A.id_category = B.id WHERE finished = ?",
         [finished], // Pasamos el parámetro taskId como un array para prevenir SQL injection
         (_, result) => {
           const task = result.rows._array; // Obtenemos la primera fila del resultado como un objeto
@@ -115,11 +99,11 @@ const fetchTaskIfFinished = (finished) => {
   });
 };
 
-const handleInsert = (title, description, date) => {
+const handleInsert = (title, description, date, categoryId) => {
   db.transaction((tx) => {
     tx.executeSql(
-      "INSERT INTO tasks (title, description, date) VALUES (?, ?, ?)",
-      [title, description, date],
+      "INSERT INTO tasks (title, description, date, id_category) VALUES (?, ?, ?, ?)",
+      [title, description, date, categoryId],
       () => {
         console.log("Inserción de datos exitosa");
       },
@@ -147,11 +131,11 @@ const handleDelete = (taskId) => {
   });
 };
 
-const handleUpdate = (taskId, title, description, date) => {
+const handleUpdate = (taskId, title, description, date, categoryId) => {
   db.transaction((tx) => {
     tx.executeSql(
-      "UPDATE tasks SET title = ?, description = ?, date = ? WHERE id = ?",
-      [title, description, date, taskId],
+      "UPDATE tasks SET title = ?, description = ?, date = ?, id_category = ? WHERE id = ?",
+      [title, description, date, categoryId, taskId],
       () => {
         console.log("Actualización de datos exitosa");
       },
@@ -181,7 +165,7 @@ const getTasksByDateAsc = () => {
   return new Promise((resolve, reject) => {
     db.transaction((tx) => {
       tx.executeSql(
-        "SELECT * FROM tasks WHERE date IS NOT NULL ORDER BY date ASC",
+        "SELECT A.*, B.name categoryName, B.color FROM tasks A LEFT JOIN categories B ON A.id_category = B.id WHERE date IS NOT NULL ORDER BY date ASC",
         [],
         (tx, results) => {
           const tasks = results.rows._array;
@@ -200,7 +184,7 @@ const getTasksByDateDesc = () => {
   return new Promise((resolve, reject) => {
     db.transaction((tx) => {
       tx.executeSql(
-        "SELECT * FROM tasks WHERE date IS NOT NULL ORDER BY date DESC",
+        "SELECT A.*, B.name categoryName, B.color FROM tasks A LEFT JOIN categories B ON A.id_category = B.id WHERE date IS NOT NULL ORDER BY date DESC",
         [],
         (tx, results) => {
           const tasks = results.rows._array;
@@ -233,11 +217,11 @@ const fetchCategories = () => {
   });
 };
 
-const insertCategory = (name) => {
+const insertCategory = (name, color) => {
   db.transaction((tx) => {
     tx.executeSql(
-      "INSERT INTO categories (name) VALUES (?)",
-      [name],
+      "INSERT INTO categories (name, color) VALUES (?, ?)",
+      [name, color],
       () => {
         console.log("Inserción de datos exitosa");
       },
@@ -245,58 +229,6 @@ const insertCategory = (name) => {
         console.log("Error al insertar datos: ", error);
       }
     );
-  });
-};
-
-const insertTaskCategory = (task_id, category_id) => {
-  db.transaction((tx) => {
-    tx.executeSql(
-      "INSERT INTO task_category (task_id, category_id) VALUES (?, ?)",
-      [task_id, category_id],
-      () => {
-        console.log("Inserción de datos exitosa");
-      },
-      (error) => {
-        console.log("Error al insertar datos: ", error);
-      }
-    );
-  });
-};
-
-const updatetTaskCategory = (task_id, category_id) => {
-  db.transaction((tx) => {
-    tx.executeSql(
-      "UPDATE task_category SET category_id = ? WHERE task_id = ?",
-      [category_id, task_id],
-      () => {
-        console.log("Actualización de datos exitosa");
-      },
-      (error) => {
-        console.log("Error al actualizar datos: ", error);
-      }
-    );
-  });
-};
-
-const fetchTaskCategory = (task_id) => {
-  return new Promise((resolve, reject) => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        "SELECT * FROM task_category WHERE task_id = ?",
-        [task_id],
-        (_, result) => {
-          const task_category = result.rows._array;
-          resolve(task_category); // Resuelve la promesa con los datos obtenidos
-        },
-        (error) => {
-          console.log(
-            "Error al obtener la relacion de tarea y categoria: ",
-            error
-          );
-          reject(error); // Rechaza la promesa en caso de error
-        }
-      );
-    });
   });
 };
 
@@ -313,7 +245,4 @@ export {
   getTasksByDateDesc,
   fetchCategories,
   insertCategory,
-  insertTaskCategory,
-  fetchTaskCategory,
-  updatetTaskCategory,
 };

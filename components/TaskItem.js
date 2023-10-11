@@ -10,7 +10,7 @@ const TaskItem = ({ task, handleDelete, toggleFinished, setFormatedDate }) => {
 
   return (
     <View style={styles.itemContainer}>
-      <Text style={task.category ? styles.category : { position: 'absolute' }}>{task.category}</Text>
+      <Text style={task.id_category ? [styles.category, {backgroundColor: task.color}] : { position: 'absolute' }}>{task.categoryName}</Text>
       <View style={styles.innerContainer}>
         <TouchableOpacity
           style={{
@@ -133,7 +133,6 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   category: {
-    backgroundColor: "#fff",
     top: 0,
     width: "100%",
     borderTopLeftRadius: 5,
