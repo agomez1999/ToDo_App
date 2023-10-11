@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -11,23 +11,27 @@ import {
 import Layout from "../../components/Layout";
 import { ColorPicker } from "react-native-color-picker";
 
-import { insertCategory } from "../../utils/db";
+import { fetchCategoryById, fetchTaskById, insertCategory, updateCategory } from "../../utils/db";
 
 const CategoryFormScreen = ({ navigation, route }) => {
   const [category, setCategory] = useState({
     name: "",
     color: null,
   });
-
   const [isColorPickerVisible, setColorPickerVisible] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   const handleChange = (field, value) => {
     setCategory({ ...category, [field]: value });
   };
 
   const handleSubmit = async () => {
-    console.log(category);
-    await insertCategory(category.name, category.color);
+    if (editing) {
+      await updateCategory(category.name, category.color, route.params.id)
+    } else {
+      await insertCategory(category.name, category.color);
+    }
+    
 
     navigation.navigate("CategoryScreen");
   };
@@ -35,6 +39,20 @@ const CategoryFormScreen = ({ navigation, route }) => {
   const handleColorPickerToggle = () => {
     setColorPickerVisible(!isColorPickerVisible);
   };
+
+  useEffect(() => {
+    async function fetchData() {
+      if (route.params && route.params.id) {
+        navigation.setOptions({ headerTitle: "Actualizar categoria" });
+        setEditing(true);
+
+        const category = await fetchCategoryById(route.params.id);
+        setCategory({ name: category.name, color: category.color });
+      }
+    }
+
+    fetchData();
+  }, []);
 
   return (
     <Layout>
@@ -52,7 +70,9 @@ const CategoryFormScreen = ({ navigation, route }) => {
             style={styles.buttonColor}
             onPress={handleColorPickerToggle}
           >
-            <Text style={styles.buttonText}>{category.color ? category.color : 'Elegir color'}</Text>
+            <Text style={styles.buttonText}>
+              {category.color ? category.color : "Elegir color"}
+            </Text>
           </TouchableOpacity>
         </View>
 

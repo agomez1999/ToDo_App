@@ -10,31 +10,21 @@ const CategoryItem = ({ category, handleDelete }) => {
 
   return (
     <TouchableOpacity
+      onPress={() =>
+        navigation.navigate("CategoryFormScreen", { id: category.id })
+      }
       style={[styles.card, { backgroundColor: category?.color }]}
     >
       <Text>{category?.name}</Text>
       <View style={{ flexDirection: "row" }}>
-        <TouchableOpacity
-          style={{
-            backgroundColor: "#007AFF",
-            padding: 7,
-            borderRadius: 5,
-            height: 32,
-          }}
-          onPress={() =>
-            navigation.navigate("CategoryForm", { id: category.id })
-          }
-        >
-          <AntDesign
-            name="edit"
-            size={19}
-            color="white"
-            style={{ textAlign: "center" }}
-          />
-        </TouchableOpacity>
 
         <TouchableOpacity
-          style={{ backgroundColor: "#ee5253", padding: 7, borderRadius: 5, marginLeft: 3 }}
+          style={{
+            backgroundColor: "#ee5253",
+            padding: 7,
+            borderRadius: 5,
+            marginLeft: 3,
+          }}
           onPress={() => handleDelete(category.id)}
         >
           <MaterialCommunityIcons

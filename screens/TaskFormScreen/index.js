@@ -23,7 +23,6 @@ import {
   handleUpdate,
   fetchTaskById,
   fetchCategories,
-  updatetTaskCategory,
 } from "../../utils/db";
 
 const TaskFormScreen = ({ navigation, route }) => {

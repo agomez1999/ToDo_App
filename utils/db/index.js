@@ -215,6 +215,25 @@ const fetchCategories = () => {
   });
 };
 
+const fetchCategoryById = (categoryId) => {
+  return new Promise((resolve, reject) => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        "SELECT * FROM categories WHERE id = ?",
+        [categoryId], // Pasamos el parámetro taskId como un array para prevenir SQL injection
+        (_, result) => {
+          const category = result.rows.item(0); // Obtenemos la primera fila del resultado como un objeto
+          resolve(category); // Resuelve la promesa con la tarea obtenida
+        },
+        (error) => {
+          console.log("Error al obtener la tarea: ", error);
+          reject(error); // Rechaza la promesa en caso de error
+        }
+      );
+    });
+  });
+};
+
 const insertCategory = (name, color) => {
   db.transaction((tx) => {
     tx.executeSql(
@@ -232,14 +251,42 @@ const insertCategory = (name, color) => {
 
 const deleteCategory = (categoryId) => {
   db.transaction((tx) => {
+    // Elimina la categoría de la tabla de categorías
     tx.executeSql(
       "DELETE FROM categories WHERE id = ?",
       [categoryId],
       () => {
-        console.log("Eliminación de datos exitosa");
+        console.log("Eliminación de categoría exitosa");
+
+        // Actualiza el campo "id_category" de las tareas a null
+        tx.executeSql(
+          "UPDATE tasks SET id_category = null WHERE id_category = ?",
+          [categoryId],
+          () => {
+            console.log("Actualización de tareas exitosa");
+          },
+          (error) => {
+            console.log("Error al actualizar tareas: ", error);
+          }
+        );
       },
       (error) => {
-        console.log("Error al eliminar datos: ", error);
+        console.log("Error al eliminar categoría: ", error);
+      }
+    );
+  });
+};
+
+const updateCategory = (name, color, categoryId) => {
+  db.transaction((tx) => {
+    tx.executeSql(
+      "UPDATE categories SET name = ?, color = ? WHERE id = ?",
+      [name, color, categoryId],
+      () => {
+        console.log("Actualización de datos exitosa");
+      },
+      (error) => {
+        console.log("Error al actualizar datos: ", error);
       }
     );
   });
@@ -259,4 +306,6 @@ export {
   fetchCategories,
   insertCategory,
   deleteCategory,
+  updateCategory,
+  fetchCategoryById,
 };

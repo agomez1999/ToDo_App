@@ -70,7 +70,7 @@ function CategoryList() {
     <>
       {isEmpty ? (
         <Text style={{ marginTop: 100, color: "#fff", fontSize: 20 }}>
-          No hay tareas
+          No hay categorias
         </Text>
       ) : (
         <FlatList
