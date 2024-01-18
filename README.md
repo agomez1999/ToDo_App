@@ -1,6 +1,6 @@
 # ToDo App con React Native
 
-Esta aplicación de ToDo está desarrollada con React Native y MySQLite y proporciona funcionalidades para añadir tareas, categorías y organizar las tareas por categoría. Además, incluye filtros para facilitar la búsqueda y clasificación de tareas.
+Esta aplicación de ToDo está desarrollada con React Native y SQLite y proporciona funcionalidades para añadir tareas, categorías y organizar las tareas por categoría. Además, incluye filtros para facilitar la búsqueda y clasificación de tareas.
 
 ## Funcionalidades Principales
 
